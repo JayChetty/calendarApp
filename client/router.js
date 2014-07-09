@@ -6,6 +6,7 @@ var InfoPage = require('./pages/info');
 var PersonAddPage = require('./pages/person-add');
 var PersonEditPage = require('./pages/person-edit');
 var PersonViewPage = require('./pages/person-view');
+var Cycles = require('./models/cycles')
 
 
 module.exports = Router.extend({
@@ -34,8 +35,14 @@ module.exports = Router.extend({
     },
 
     info: function () {
+        cycles = new Cycles({
+            name: 'Jay',
+            description: 'Dude'
+        })
+        console.log('cycles', cycles)
+        console.log('cycles name', cycles.name) 
         this.trigger('newPage', new InfoPage({
-            model: me
+            model:cycles
         }));
     },
 

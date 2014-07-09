@@ -39,8 +39,15 @@
     };
 
     // pages/info.jade compiled template
-    templatizer["pages"]["info"] = function tmpl_pages_info() {
-        return '<section class="page pageTwo"><h2>Simple Page Example</h2><p>This page was rendered by a simple page view file at client/pages/info.js.</p></section>';
+    templatizer["pages"]["info"] = function tmpl_pages_info(locals) {
+        var buf = [];
+        var jade_mixins = {};
+        var jade_interp;
+        var locals_for_with = locals || {};
+        (function(model) {
+            buf.push('<section class="page pageTwo"><h2>Simple Page Example</h2><p>La la This page was rendered by a simple page view file at client/pages/info.js.</p><span>' + jade.escape((jade_interp = model.name) == null ? "" : jade_interp) + "</span></section>");
+        })("model" in locals_for_with ? locals_for_with.model : typeof model !== "undefined" ? model : undefined);
+        return buf.join("");
     };
 
     // pages/personAdd.jade compiled template
