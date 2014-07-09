@@ -40,8 +40,8 @@ app.set('view engine', 'jade');
 // Configure Moonboots to serve our client application
 // ---------------------------------------------------
 var clientApp = new Moonboots({
-    jsFileName: 'natural-calendar',
-    cssFileName: 'natural-calendar',
+    jsFileName: 'calendar-app',
+    cssFileName: 'calendar-app',
     main: fixPath('client/app.js'),
     developmentMode: config.isDev,
     libraries: [
@@ -105,4 +105,4 @@ app.get('*', clientSettingsMiddleware, clientApp.html());
 
 // listen for incoming http requests on the port as specified in our config
 app.listen(config.http.port);
-console.log("Natural Calendar is running at: http://localhost:" + config.http.port + " Yep. That\'s pretty awesome.");
+console.log("Calendar App is running at: http://localhost:" + config.http.port + " Yep. That\'s pretty awesome.");
