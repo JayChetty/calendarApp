@@ -17,6 +17,7 @@ module.exports = View.extend({
         this.findCanvas();
         this.drawYearCircle();
         this.drawMoonthLines();
+        this.drawEarth();
         // console.log('rendering!', this.el.getElementById('cycles'))
     },
 
@@ -33,6 +34,19 @@ module.exports = View.extend({
     drawYearCircle: function(){
       context = this.canvas.getContext("2d");
       context.arc(this.params.center.x,this.params.center.y,this.params.radius,0, 2*Math.PI);
+      context.stroke();
+    },
+
+    drawEarth: function(){
+      context = this.canvas.getContext("2d");
+      daysInYear = this.model.earthCycles.daysInYear();
+      dayOfYear = this.model.earthCycles.dayOfYear();
+      fractionOfYear = dayOfYear/daysInYear;
+      angle = (Math.PI*2) * fractionOfYear;
+      earthPoint = this.polarToCartesian(angle,this.params.radius);
+      console.log('earth point', earthPoint);
+      context.moveTo(earthPoint.x, earthPoint.y);
+      context.arc(earthPoint.x,earthPoint.y, 5,0, 2*Math.PI);
       context.stroke();
     },
 
