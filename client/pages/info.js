@@ -9,7 +9,8 @@ module.exports = View.extend({
     
     params: {
       center: {x:250, y:250},
-      radius: 100
+      radius: 100,
+      moonRadius:20
     },
 
     render: function () {
@@ -19,15 +20,20 @@ module.exports = View.extend({
         this.drawMoonthLines();
         this.drawEarth();
         this.drawMoonCircle();
+        this.drawMoon();
     },
 
     findCanvas: function(){
       this.canvas = $(this.el).find('#cycles')[0];
     },
 
-    polarToCartesian: function(angle, length){
-      x = this.params.center.x + (length * Math.cos(angle));
-      y = this.params.center.y + (length * Math.sin(angle));
+    polarToCartesian: function(angle, length, center){
+      if (center == undefined) {
+        console.log('center is undefined')
+        center = {x:this.params.center.x, y:this.params.center.y}
+      }
+      x = center.x + (length * Math.cos(angle));
+      y = center.y + (length * Math.sin(angle));
       return ({x:x, y:y});
     },
 
@@ -38,20 +44,43 @@ module.exports = View.extend({
       context.stroke();
     },
 
-    getEarthPosition: function(){
+    fractionOfYear: function(){
       daysInYear = this.model.earthCycles.daysInYear();
       dayOfYear = this.model.earthCycles.dayOfYear();
       fractionOfYear = dayOfYear/daysInYear;
+      return fractionOfYear;
+    },
+
+    getEarthPosition: function(){
+      fractionOfYear = this.fractionOfYear();
       angle = (Math.PI*2) * fractionOfYear;
       earthPoint = this.polarToCartesian(angle,this.params.radius);
       return earthPoint
+    },
+
+    getMoonPosition: function(){
+      earthPoint = this.getEarthPosition();
+      fractionOfYear = this.fractionOfYear();
+      startAngle = ((Math.PI*2) * fractionOfYear) - Math.PI;
+      fractionOfMoonth = this.model.earthCycles.dayOfMoonth()/this.model.earthCycles.daysInMoonth();
+      moonthAngle = (Math.PI*2) * fractionOfMoonth;
+      moonPoint = this.polarToCartesian(startAngle + moonthAngle, this.params.moonRadius, earthPoint);
+      return moonPoint;
     },
 
     drawMoonCircle: function(){
       context = this.canvas.getContext("2d");
       context.beginPath();
       earthPoint = this.getEarthPosition();
-      context.arc(earthPoint.x,earthPoint.y, (this.params.radius)/3,0, 2*Math.PI);
+      context.arc(earthPoint.x,earthPoint.y, this.params.moonRadius,0, 2*Math.PI);
+      context.stroke();
+    },
+
+    drawMoon: function(){
+      context = this.canvas.getContext("2d");
+      context.beginPath();
+      moonPoint = this.getMoonPosition();
+      context.arc(moonPoint.x,moonPoint.y, 2,0, 2*Math.PI);
       context.stroke();
     },
 
