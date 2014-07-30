@@ -18,7 +18,7 @@ module.exports = View.extend({
         this.drawYearCircle();
         this.drawMoonthLines();
         this.drawEarth();
-        // console.log('rendering!', this.el.getElementById('cycles'))
+        this.drawMoonCircle();
     },
 
     findCanvas: function(){
@@ -33,25 +33,39 @@ module.exports = View.extend({
 
     drawYearCircle: function(){
       context = this.canvas.getContext("2d");
+      context.beginPath();
       context.arc(this.params.center.x,this.params.center.y,this.params.radius,0, 2*Math.PI);
       context.stroke();
     },
 
-    drawEarth: function(){
-      context = this.canvas.getContext("2d");
+    getEarthPosition: function(){
       daysInYear = this.model.earthCycles.daysInYear();
       dayOfYear = this.model.earthCycles.dayOfYear();
       fractionOfYear = dayOfYear/daysInYear;
       angle = (Math.PI*2) * fractionOfYear;
       earthPoint = this.polarToCartesian(angle,this.params.radius);
-      console.log('earth point', earthPoint);
-      context.moveTo(earthPoint.x, earthPoint.y);
+      return earthPoint
+    },
+
+    drawMoonCircle: function(){
+      context = this.canvas.getContext("2d");
+      context.beginPath();
+      earthPoint = this.getEarthPosition();
+      context.arc(earthPoint.x,earthPoint.y, (this.params.radius)/3,0, 2*Math.PI);
+      context.stroke();
+    },
+
+    drawEarth: function(){
+      context = this.canvas.getContext("2d");
+      context.beginPath();
+      earthPoint = this.getEarthPosition();
       context.arc(earthPoint.x,earthPoint.y, 5,0, 2*Math.PI);
       context.stroke();
     },
 
     drawMoonthLines: function(){
       context = this.canvas.getContext("2d");
+      context.beginPath();
       moonths = this.model.earthCycles.moonths
       daysInYear = this.model.earthCycles.daysInYear()
       cumulativeDays = 0
@@ -60,7 +74,7 @@ module.exports = View.extend({
         cumulativeDays = cumulativeDays + moonthLength;
         fractionOfYear = cumulativeDays/daysInYear;
         angle = (Math.PI*2) * fractionOfYear;
-        context.beginPath();
+        context.beginPath();     
         context.moveTo(this.params.center.x, this.params.center.y);
         toPoint = this.polarToCartesian(angle,this.params.radius);
         context.lineTo(toPoint.x, toPoint.y);
