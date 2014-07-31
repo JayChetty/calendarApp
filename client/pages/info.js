@@ -1,16 +1,29 @@
 var templates = require('../templates');
 var View = require('ampersand-view');
-// var EarthCycles = require('../earth_cycles');
+var EarthCycles= require('natural_calendar');
 
 
 module.exports = View.extend({
     pageTitle: 'more info',
-    template: "<div><canvas id='cycles' width='500px;' height='500px' style='border:1px solid #000000;'></canvas></div>",
-    
+    // template: templates.pages.info,
+    template: "<div><canvas id='cycles' width='500px;' height='500px'></canvas>   <input id='date-pick' type='date' name='show-date'> </div> ",
+
+    events: {
+        "input #date-pick": "changeDate"
+    },
+
     params: {
       center: {x:250, y:250},
       radius: 100,
       moonRadius:20
+    },
+
+    changeDate: function(ev) {
+      console.log('changing date', ev);
+      var date = new Date(ev.delegateTarget.value);
+      console.log('date', date);
+      this.model.earthCycles = new EarthCycles(date);
+      this.render();
     },
 
     render: function () {
@@ -23,13 +36,12 @@ module.exports = View.extend({
         this.drawMoon();
     },
 
-    findCanvas: function(){
+    findCanvas: function(){      
       this.canvas = $(this.el).find('#cycles')[0];
     },
 
     polarToCartesian: function(angle, length, center){
       if (center == undefined) {
-        console.log('center is undefined')
         center = {x:this.params.center.x, y:this.params.center.y}
       }
       x = center.x + (length * Math.cos(angle));

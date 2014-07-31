@@ -40,7 +40,7 @@
 
     // pages/info.jade compiled template
     templatizer["pages"]["info"] = function tmpl_pages_info() {
-        return '<section class="page pageTwo"><h2>Natural Calendar</h2><canvas id="cycles"></canvas></section>';
+        return '<section class="page pageTwo"><canvas id="cycles"></canvas></section>';
     };
 
     // pages/personAdd.jade compiled template
