@@ -21,10 +21,17 @@ module.exports = View.extend({
     initialize: function(){
       now = new Date()
       this.earthCycles = new EarthCycles(now);
+      this.moonths = this.earthCycles.moonths;
+      this.dayOfMoonth = this.earthCycles.dayOfMoonth();
+      this.dayOfYear = this.earthCycles.dayOfYear();
+      this.daysInYear = this.earthCycles.daysInYear();
+      this.moonthOfYear = this.earthCycles.moonthOfYear();
+      this.moonthsInYear = this.moonths.length;
     },
 
+    
+
     dateFromGregorian: function(ev) {
-      console.log('changing date', ev);
       var date = new Date(ev.delegateTarget.value);
       console.log('date', date);
       this.earthCycles = new EarthCycles(date);
@@ -62,9 +69,7 @@ module.exports = View.extend({
     },
 
     fractionOfYear: function(){
-      daysInYear = this.earthCycles.daysInYear();
-      dayOfYear = this.earthCycles.dayOfYear();
-      fractionOfYear = dayOfYear/daysInYear;
+      fractionOfYear = this.dayOfYear/this.daysInYear;
       return fractionOfYear;
     },
 
@@ -79,7 +84,7 @@ module.exports = View.extend({
       earthPoint = this.getEarthPosition();
       fractionOfYear = this.fractionOfYear();
       startAngle = ((Math.PI*2) * fractionOfYear) - Math.PI;
-      fractionOfMoonth = this.earthCycles.dayOfMoonth()/this.earthCycles.daysInMoonth();
+      fractionOfMoonth = this.dayOfMoonth/this.daysInMoonth;
       moonthAngle = (Math.PI*2) * fractionOfMoonth;
       moonPoint = this.polarToCartesian(startAngle + moonthAngle, this.params.moonRadius, earthPoint);
       return moonPoint;
@@ -112,8 +117,8 @@ module.exports = View.extend({
     drawMoonthLines: function(){
       context = this.canvas.getContext("2d");
       context.beginPath();
-      moonths = this.earthCycles.moonths
-      daysInYear = this.earthCycles.daysInYear()
+      moonths = this.moonths
+      daysInYear = this.daysInYear
       cumulativeDays = 0
       for (i=0;i<moonths.length;i++) {
         moonthLength = moonths[i];
