@@ -9,7 +9,7 @@ module.exports = View.extend({
     template: "<div><canvas id='cycles' width='500px;' height='500px'></canvas>   <input id='date-pick' type='date' name='show-date'> </div> ",
 
     events: {
-        "input #date-pick": "changeDate"
+        "input #date-pick": "dateFromGregorian"
     },
 
     params: {
@@ -18,11 +18,16 @@ module.exports = View.extend({
       moonRadius:20
     },
 
-    changeDate: function(ev) {
+    initialize: function(){
+      now = new Date()
+      this.earthCycles = new EarthCycles(now);
+    },
+
+    dateFromGregorian: function(ev) {
       console.log('changing date', ev);
       var date = new Date(ev.delegateTarget.value);
       console.log('date', date);
-      this.model.earthCycles = new EarthCycles(date);
+      this.earthCycles = new EarthCycles(date);
       this.render();
     },
 
@@ -57,8 +62,8 @@ module.exports = View.extend({
     },
 
     fractionOfYear: function(){
-      daysInYear = this.model.earthCycles.daysInYear();
-      dayOfYear = this.model.earthCycles.dayOfYear();
+      daysInYear = this.earthCycles.daysInYear();
+      dayOfYear = this.earthCycles.dayOfYear();
       fractionOfYear = dayOfYear/daysInYear;
       return fractionOfYear;
     },
@@ -74,7 +79,7 @@ module.exports = View.extend({
       earthPoint = this.getEarthPosition();
       fractionOfYear = this.fractionOfYear();
       startAngle = ((Math.PI*2) * fractionOfYear) - Math.PI;
-      fractionOfMoonth = this.model.earthCycles.dayOfMoonth()/this.model.earthCycles.daysInMoonth();
+      fractionOfMoonth = this.earthCycles.dayOfMoonth()/this.earthCycles.daysInMoonth();
       moonthAngle = (Math.PI*2) * fractionOfMoonth;
       moonPoint = this.polarToCartesian(startAngle + moonthAngle, this.params.moonRadius, earthPoint);
       return moonPoint;
@@ -107,8 +112,8 @@ module.exports = View.extend({
     drawMoonthLines: function(){
       context = this.canvas.getContext("2d");
       context.beginPath();
-      moonths = this.model.earthCycles.moonths
-      daysInYear = this.model.earthCycles.daysInYear()
+      moonths = this.earthCycles.moonths
+      daysInYear = this.earthCycles.daysInYear()
       cumulativeDays = 0
       for (i=0;i<moonths.length;i++) {
         moonthLength = moonths[i];
