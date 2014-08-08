@@ -6,3 +6,8 @@ body {
   height: 500px;
   border: 1px solid #000;
 }
+td {
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+}

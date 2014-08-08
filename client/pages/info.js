@@ -5,11 +5,12 @@ var EarthCycles= require('natural_calendar');
 
 module.exports = View.extend({
     pageTitle: 'more info',
-    // template: templates.pages.info,
-    template: "<div><canvas id='cycles' width='500px;' height='500px'></canvas>   <input id='date-pick' type='date' name='show-date'> </div> ",
+    template: templates.pages.info,
+    // template: "<div><canvas id='cycles' width='500px;' height='500px'></canvas>   <input id='date-pick' type='date' name='show-date'> </div> ",
 
     events: {
-        "input #date-pick": "dateFromGregorian"
+        "input #date-pick": "dateFromGregorian",
+        "click a": "setDayFromGrid"
     },
 
     params: {
@@ -19,23 +20,70 @@ module.exports = View.extend({
     },
 
     initialize: function(){
-      now = new Date()
+      console.log('init');
+      var now = new Date();
       this.earthCycles = new EarthCycles(now);
       this.moonths = this.earthCycles.moonths;
       this.dayOfMoonth = this.earthCycles.dayOfMoonth();
+      this.daysInMoonth = this.earthCycles.daysInMoonth();
       this.dayOfYear = this.earthCycles.dayOfYear();
       this.daysInYear = this.earthCycles.daysInYear();
       this.moonthOfYear = this.earthCycles.moonthOfYear();
       this.moonthsInYear = this.moonths.length;
+      
     },
 
-    
+    setDayFromGrid:function(ev){
+      ev.preventDefault();
+      console.log("event", ev);
+      this.setDay(parseInt(ev.target.text))
+      this.render();
+    },
+
+    drawMoonthGrid: function(){
+      console.log('drawing grid', this.daysInMoonth)
+      var grid = $(this.el).find('#moonth-grid');
+      for(var i = this.daysInMoonth +1; i<31; i++){
+        console.log('i');
+        var string = "#day"+i;
+        var el = $(this.el).find(string);
+        el.hide();
+      }
+      // grid.html('lalala')
+    },
+
+    setDay: function(day){
+      console.log('setting day', day)
+      if (day < 1){
+        day = 1;
+      }
+      if (day > this.daysInMoonth){
+        day = this.daysInMoonth;
+      }
+      this.dayOfMoonth = day;
+    },
+
+    setMoonth: function(moonth){
+      if (moonth < 1){
+        moonth = 1;
+      }
+      if (moonth > this.moonthsInYear){
+        moonth = this.moonthsInYear;
+      }
+      this.moonthOfYear = moonth;
+    },
+
 
     dateFromGregorian: function(ev) {
       var date = new Date(ev.delegateTarget.value);
-      console.log('date', date);
       this.earthCycles = new EarthCycles(date);
       this.render();
+    },
+
+    writeText: function() {
+      var element = $(this.el).find('#date-text');
+      string = "The " + this.dayOfMoonth + "/" +this.daysInMoonth + " day of the " + this.moonthOfYear + "/" + this.moonthsInYear + " Moonth of Year "
+      element.html(string)
     },
 
     render: function () {
@@ -46,6 +94,8 @@ module.exports = View.extend({
         this.drawEarth();
         this.drawMoonCircle();
         this.drawMoon();
+        this.writeText();
+        this.drawMoonthGrid();
     },
 
     findCanvas: function(){      
@@ -69,24 +119,22 @@ module.exports = View.extend({
     },
 
     fractionOfYear: function(){
-      fractionOfYear = this.dayOfYear/this.daysInYear;
+      var fractionOfYear = this.dayOfYear/this.daysInYear;
       return fractionOfYear;
     },
 
     getEarthPosition: function(){
-      fractionOfYear = this.fractionOfYear();
-      angle = (Math.PI*2) * fractionOfYear;
+      angle = (Math.PI*2) * this.fractionOfYear();
       earthPoint = this.polarToCartesian(angle,this.params.radius);
       return earthPoint
     },
 
     getMoonPosition: function(){
-      earthPoint = this.getEarthPosition();
-      fractionOfYear = this.fractionOfYear();
-      startAngle = ((Math.PI*2) * fractionOfYear) - Math.PI;
-      fractionOfMoonth = this.dayOfMoonth/this.daysInMoonth;
-      moonthAngle = (Math.PI*2) * fractionOfMoonth;
-      moonPoint = this.polarToCartesian(startAngle + moonthAngle, this.params.moonRadius, earthPoint);
+      var earthPoint = this.getEarthPosition();
+      var startAngle = ((Math.PI*2) * this.fractionOfYear()) - Math.PI;
+      var fractionOfMoonth = this.dayOfMoonth/this.daysInMoonth;
+      var moonthAngle = (Math.PI*2) * fractionOfMoonth;
+      var moonPoint = this.polarToCartesian(startAngle + moonthAngle, this.params.moonRadius, earthPoint);
       return moonPoint;
     },
 
