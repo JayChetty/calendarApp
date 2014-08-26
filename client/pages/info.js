@@ -10,7 +10,8 @@ module.exports = View.extend({
 
     events: {
         "input #date-pick": "dateFromGregorian",
-        "click a": "setDayFromGrid"
+        "click #moonth-grid a": "setDayFromGrid",
+        "click #moonth-row a": "setMoonthFromRow"
     },
 
     params: {
@@ -20,7 +21,6 @@ module.exports = View.extend({
     },
 
     initialize: function(){
-      console.log('init');
       var now = new Date();
       this.earthCycles = new EarthCycles(now);
       this.moonths = this.earthCycles.moonths;
@@ -35,16 +35,21 @@ module.exports = View.extend({
 
     setDayFromGrid:function(ev){
       ev.preventDefault();
-      console.log("event", ev);
       this.setDay(parseInt(ev.target.text))
       this.render();
     },
 
+    setMoonthFromRow:function(ev){
+      ev.preventDefault();
+      this.setMoonth(parseInt(ev.target.text))
+      this.render();
+    },
+
+
     drawMoonthGrid: function(){
-      console.log('drawing grid', this.daysInMoonth)
       var grid = $(this.el).find('#moonth-grid');
+
       for(var i = this.daysInMoonth +1; i<31; i++){
-        console.log('i');
         var string = "#day"+i;
         var el = $(this.el).find(string);
         el.hide();
@@ -53,14 +58,17 @@ module.exports = View.extend({
     },
 
     setDay: function(day){
-      console.log('setting day', day)
       if (day < 1){
         day = 1;
       }
       if (day > this.daysInMoonth){
         day = this.daysInMoonth;
       }
-      this.dayOfMoonth = day;
+
+      var change = day - this.dayOfMoonth;
+
+      this.dayOfMoonth = day;     
+      this.dayOfYear = this.dayOfYear + change
     },
 
     setMoonth: function(moonth){
@@ -71,6 +79,13 @@ module.exports = View.extend({
         moonth = this.moonthsInYear;
       }
       this.moonthOfYear = moonth;
+      this.dayOfMoonth = 1;     
+      var sum = 0;
+      for (i=0;i<moonth-1;i++) {
+        sum += moonths[i]
+      }
+      this.dayOfYear = sum + 1;
+      this.daysInMoonth = this.moonths[moonth-1]
     },
 
 
@@ -86,6 +101,19 @@ module.exports = View.extend({
       element.html(string)
     },
 
+    drawMoonthRow: function(){
+      var row = $(this.el).find('#moonth-row');
+      for(var i = 1; i< this.moonthsInYear +1; i++){
+        var monthEl = document.createElement('td')
+        var link = document.createElement('a')
+        link.innerHTML =  i.toString()
+        monthEl.appendChild(link)
+        row.append(link)
+
+      }      
+
+    },
+
     render: function () {
         this.renderWithTemplate();
         this.findCanvas();
@@ -96,6 +124,7 @@ module.exports = View.extend({
         this.drawMoon();
         this.writeText();
         this.drawMoonthGrid();
+        this.drawMoonthRow();
     },
 
     findCanvas: function(){      
