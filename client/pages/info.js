@@ -23,6 +23,10 @@ module.exports = View.extend({
     initialize: function(){
       var now = new Date();
       this.earthCycles = new EarthCycles(now);
+      this.setup();   
+    },
+
+    setup: function(){
       this.moonths = this.earthCycles.moonths;
       this.dayOfMoonth = this.earthCycles.dayOfMoonth();
       this.daysInMoonth = this.earthCycles.daysInMoonth();
@@ -30,7 +34,6 @@ module.exports = View.extend({
       this.daysInYear = this.earthCycles.daysInYear();
       this.moonthOfYear = this.earthCycles.moonthOfYear();
       this.moonthsInYear = this.moonths.length;
-      
     },
 
     setDayFromGrid:function(ev){
@@ -90,8 +93,10 @@ module.exports = View.extend({
 
 
     dateFromGregorian: function(ev) {
+      console.log('dateFromGregorian')
       var date = new Date(ev.delegateTarget.value);
       this.earthCycles = new EarthCycles(date);
+      this.setup();
       this.render();
     },
 
